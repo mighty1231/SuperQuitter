@@ -1,0 +1,4 @@
+#include "resources.h"
+#include <windows.h>
+
+IDC_QUIT2MNUBIN   RT_RCDATA   ".\\quit2mnu.bin"

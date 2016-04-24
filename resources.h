@@ -1,0 +1,1 @@
+#define IDC_QUIT2MNUBIN 101
