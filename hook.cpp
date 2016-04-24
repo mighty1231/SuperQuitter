@@ -5,25 +5,38 @@
 #include <stdio.h>
 
 char quitdlg[] = "rez\\quit2mnu.bin";
-char *data;
-size_t size;
-
-char buf[1000];
-
+char *datasrc;
+size_t datasize;
+const int datasize_fixed = 705;
+ 
+ BYTE code_4F58D9[10] = {0x68, 0xD2, 0, 0, 0, 0x68, 0x68, 0x22, 0x50, 0x00};
 /* load binary from folder in dll
  */
 BOOL hook_init(HINSTANCE hInst) {
-	HRSRC rc = FindResource(0, MAKEINTRESOURCE(IDC_QUIT2MNUBIN), RT_RCDATA);
-	HGLOBAL rcData = LoadResource(0, rc);
-	data = (char *) LockResource(rcData);
-	size = SizeofResource(0, rc);
+	LPVOID lpMsgBuf;
+	DWORD dw;
+	HRSRC rc = FindResource(hInst, MAKEINTRESOURCE(IDC_QUIT2MNUBIN), RT_RCDATA);
+	// if (rc == NULL) {
+	// 	dw = GetLastError(); 
 
+	// 	FormatMessage(
+	// 		FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+	// 		FORMAT_MESSAGE_FROM_SYSTEM |
+	// 		FORMAT_MESSAGE_IGNORE_INSERTS,
+	// 		NULL,
+	// 		dw,
+	// 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+	// 		(LPTSTR) &lpMsgBuf,
+	// 		0, NULL );
+	// 	MessageBox(0, (LPTSTR)lpMsgBuf,(LPTSTR) lpMsgBuf, MB_OK);
+	// }
+	HGLOBAL rcData = LoadResource(hInst, rc);
+	datasrc = (char *) LockResource(rcData);
+	datasize = SizeofResource(hInst, rc);
+	if (datasize != datasize_fixed)
+		return FALSE;
 
-	freopen("C:\\Workspace\\dialogRestoration\\t.txt", "w", stdout);
-	printf("res rc %d rcData %d size %d", rc, rcData, size);
-	fflush(stdout);
-
-	return FALSE;
+	return TRUE;
 }
 
 __declspec(naked) void hook(void) {
@@ -39,12 +52,29 @@ __declspec(naked) void hook(void) {
 		mov eax, offset quitdlg
 		push eax
 		call strcmp
+		add esp, 8
+
 		test eax, eax
 		jnz __default
 
 	__quit:
 		; pop edi
 		; pop ebx
+
+		push ebx                  ; defaultValue
+		push 0x000000D2           ; logline
+		push 0x00502268           ; logfilename
+		push 0x000002C1           ; 705
+		mov edx, 0x0041006A
+		call edx                  ; SMemAlloc
+
+		mov ebx, eax
+		push 0x000002C1           ; 705
+		mov eax, offset datasrc
+		mov eax, [eax]
+		push eax                  ; src
+		push ebx                  ; dest
+		call memcpy
 
 		; start load registers
 		pop esi
@@ -53,7 +83,7 @@ __declspec(naked) void hook(void) {
 		pop ebx
 		; end load registers
 
-		mov edx, 0x4F58F9
+		mov edx, 0x004F58F9
 		jmp edx
 
 	__default:
@@ -64,9 +94,9 @@ __declspec(naked) void hook(void) {
 		pop ebx
 		; end load registers
 
-		push 0xD2
-		push 0x502268
-		mov edx, 0x4F58E3
+		push 0x000000D2
+		push 0x00502268
+		mov edx, 0x004F58E3
 		jmp edx
 	}
 }
