@@ -1,1 +1,5 @@
-/bindump/*
+*.obj
+*.bwl
+*.res
+*.exp
+*.lib
