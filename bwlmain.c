@@ -115,10 +115,6 @@ extern __declspec(dllexport) BOOL ApplyPatch(HANDLE hProcess, DWORD dwProcessID)
 	wchar_t dll[MAX_PATH];
 	HANDLE hThread;
 	DWORD exitCode;
-static count = 0;
-freopen("C:/Workspace/dialogRestoration/t.txt", "a+", stdout);
-printf("ApplyPatch [%d]\n", ++count);
-fflush(stdout);
 
 	OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &tokenHandle );
 	LookupPrivilegeValue( 0, SE_DEBUG_NAME, &privilegeToken.Privileges[0].Luid );
@@ -135,9 +131,9 @@ fflush(stdout);
 		GetExitCodeThread( hThread, &exitCode );
 		CloseHandle( hThread );
 	}
-
-	printf("exit code %d\n", exitCode);
-	fflush(stdout);
+	if (exitCode == NULL) {
+		return FALSE;
+	}
 
 	return TRUE; //everything OK
 }
