@@ -1,3 +1,4 @@
+#include "util.h"
 #include "sqlog.h"
 #include <windows.h>
 #include <locale.h>
@@ -16,7 +17,7 @@ int sqlog(wchar_t *format, ...){
 	GetLocalTime(&st);
 
 	/* Get log file */
-	HMODULE hModule;
+	GetDllPath(logfname);
 	wchar_t *pwc;
 	pwc = wcsrchr(logfname, L'\\');
 	if (pwc == NULL) {
