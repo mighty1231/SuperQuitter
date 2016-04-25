@@ -17,13 +17,6 @@ int sqlog(wchar_t *format, ...){
 
 	/* Get log file */
 	HMODULE hModule;
-	if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
-			GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-			(LPWSTR) &sqlog, &hModule) ||
-		GetModuleFileNameW(hModule, logfname, _countof(logfname)) == 0){
-		MessageBoxW(0, L"Error", L"Log system error", MB_ICONERROR);
-		return -1;
-	}
 	wchar_t *pwc;
 	pwc = wcsrchr(logfname, L'\\');
 	if (pwc == NULL) {
