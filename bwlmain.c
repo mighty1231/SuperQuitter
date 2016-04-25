@@ -124,7 +124,7 @@ extern __declspec(dllexport) BOOL ApplyPatch(HANDLE hProcess, DWORD dwProcessID)
 	if( !CloseHandle( tokenHandle ) ) 
 		return FALSE;
 
-	GetFullPathNameW(L"SuperQuitter.dll", MAX_PATH, dll, NULL);
+	GetFullPathNameW(L"SuperQuitter.bwl", MAX_PATH, dll, NULL);
 	hThread = CreateRemoteThreadInject(dwProcessID, dll);
 	if ( hThread != 0 ) {
 		WaitForSingleObject( hThread, INFINITE );
