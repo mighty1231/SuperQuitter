@@ -7,7 +7,7 @@
 // All BWL4 functions are C-CallingConvention(cdecl) not stdcall
 
 #define BWLAPI 4
-#define STARCRAFTBUILD 8
+#define STARCRAFTBUILD 13
 
 /*  STARCRAFTBUILD
    -1   All
@@ -78,7 +78,7 @@ extern __declspec(dllexport) void GetData(char *name, char *description, char *u
 	strcpy(name,      "SuperQuitter");
 	strcpy(description,
 		"SuperQuitter for 1.16.1 Version 1.0.0.0\r\n"
-		"Enables quit for any condition\r\n"
+		"Enables quit game for any condition with just press ctrl+q+q\r\n"
 		"https://github.com/mighty1231/SuperQuitter\r\n\r\n"
 		"by mighty1231");
 	strcpy(updateurl,   "https://github.com/mighty1231/SuperQuitter");
