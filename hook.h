@@ -3,9 +3,10 @@
 
 #include <windows.h>
 
-extern BYTE code_4F58D9[10];
+extern BYTE code_4F58D9_old[10];
+extern BYTE code_4F58D9_new[10];
 
 BOOL hook_init(HINSTANCE hInst);
-void hook(void);
+void hook();
 
 #endif
