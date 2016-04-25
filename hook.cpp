@@ -12,7 +12,7 @@ const int datasize_fixed = 705;
 BYTE code_4F58D9_old[10] = {0x68, 0xD2, 0, 0, 0, 0x68, 0x68, 0x22, 0x50, 0x00};
 BYTE code_4F58D9_new[10] = {
 	0xBA, 0, 0, 0, 0,   // mov edx, hook
-	0xE2, 0xFF,         // jmp edx
+	0xFF, 0xE2,         // jmp edx
 	0x90, 0x90, 0x90    // nop nop nop
 };
 /* load binary from folder in dll
