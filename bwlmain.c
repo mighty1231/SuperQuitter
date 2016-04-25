@@ -76,7 +76,11 @@ extern __declspec(dllexport) void GetData(char *name, char *description, char *u
 	// if necessary you can add Initialize function here
 	// possibly check CurrentCulture (CultureInfo) to localize your DLL due to system settings
 	strcpy(name,      "SuperQuitter");
-	strcpy(description, "SuperQuitter for 1.16.1 Version 1.0.0.0\r\nhttps://github.com/mighty1231/SuperQuitter\r\n\r\nby mighty1231");
+	strcpy(description,
+		"SuperQuitter for 1.16.1 Version 1.0.0.0\r\n"
+		"Enables quit for any condition\r\n"
+		"https://github.com/mighty1231/SuperQuitter\r\n\r\n"
+		"by mighty1231");
 	strcpy(updateurl,   "https://github.com/mighty1231/SuperQuitter");
 }
 
