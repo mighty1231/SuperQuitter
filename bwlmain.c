@@ -1,4 +1,6 @@
 /* http://wiki.teamliquid.net/starcraft/BWL4_Plugin_Format_Specification */
+
+#include "sqlog.h"
 #include <windows.h>
 #include <string.h>
 
@@ -77,7 +79,7 @@ extern __declspec(dllexport) void GetData(char *name, char *description, char *u
 	// possibly check CurrentCulture (CultureInfo) to localize your DLL due to system settings
 	strcpy(name,      "SuperQuitter");
 	strcpy(description,
-		"SuperQuitter for 1.16.1 Version 1.0.0.0\r\n"
+		"SuperQuitter for 1.16.1 Version 1.0.0.1\r\n"
 		"Enables quit game for any condition with just press ctrl+q+q\r\n"
 		"https://github.com/mighty1231/SuperQuitter\r\n\r\n"
 		"by mighty1231");
@@ -111,7 +113,6 @@ extern __declspec(dllexport) BOOL ApplyPatchSuspended(HANDLE hProcess, DWORD dwP
 	return TRUE; //everything OK
 }
 
-#include <stdio.h>
 extern __declspec(dllexport) BOOL ApplyPatch(HANDLE hProcess, DWORD dwProcessID)
 {
 	void *tokenHandle;
@@ -125,17 +126,24 @@ extern __declspec(dllexport) BOOL ApplyPatch(HANDLE hProcess, DWORD dwProcessID)
 	privilegeToken.PrivilegeCount = 1;
 	privilegeToken.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 	AdjustTokenPrivileges( tokenHandle, 0, &privilegeToken, sizeof( TOKEN_PRIVILEGES ), 0, 0 );
-	if( !CloseHandle( tokenHandle ) ) 
+	if( !CloseHandle( tokenHandle ) ) {
+		sqlog(L"Launcher: token failed");
 		return FALSE;
+	}
 
 	GetFullPathNameW(L"SuperQuitter.bwl", MAX_PATH, dll, NULL);
 	hThread = CreateRemoteThreadInject(dwProcessID, dll);
 	if ( hThread != 0 ) {
+		sqlog(L"Launcher: CreateRemoteThread success");
 		WaitForSingleObject( hThread, INFINITE );
 		GetExitCodeThread( hThread, &exitCode );
 		CloseHandle( hThread );
+	} else {
+		sqlog(L"Launcher: CreateRemoteThread failed");
+		return FALSE;
 	}
 	if (exitCode == NULL) {
+		sqlog(L"Launcher: LoadLibrary Failed");
 		return FALSE;
 	}
 

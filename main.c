@@ -1,5 +1,7 @@
 #include "hook.h"
+#include "sqlog.h"
 #include <stdio.h>
+#include <wchar.h>
 
 /*
  * DllMain called multiple times,
@@ -7,8 +9,10 @@
  * and DllMain is called for every thread of Starcraft.
  * */
 int calledCount = 0;
-BOOL WINAPI DllMain(HINSTANCE hModule, DWORD fdwReason, LPVOID lpReserved) {
+BOOL isOnStarcraft = FALSE;
+BOOL WINAPI DllMain(HINSTANCE hInst, DWORD fdwReason, LPVOID lpReserved) {
 	DWORD oldProtect;
+	wchar_t moduleName[MAX_PATH];
 	// DWORD startTick, curTick;
 	switch (fdwReason) {
 		case DLL_PROCESS_ATTACH:
@@ -18,11 +22,35 @@ BOOL WINAPI DllMain(HINSTANCE hModule, DWORD fdwReason, LPVOID lpReserved) {
 			break;
 
 		case DLL_THREAD_ATTACH:
-			if (calledCount++ == 0) {
-				if (hook_init(hModule) == FALSE)
+			/* Techniques from 
+			 * https://github.com/tec27/ObsGraph/blob/master/ObsGraph/DllMain.cpp
+			 */
+			if (calledCount == 0) {
+				GetModuleFileNameW(0, moduleName, MAX_PATH);
+				if (wcsstr(moduleName, L"Starcraft.exe")) {
+					isOnStarcraft = TRUE;
+				} else if (wcsstr(moduleName, L"wLauncher.exe") || 
+					wcsstr(moduleName, L"Chaoslauncher.exe")) {
+					sqlog(L"Launcher: load complete");
+					isOnStarcraft = FALSE;
+				} else {
+					MessageBoxW(
+						0,
+						moduleName,
+						L"The module could not be loaded",
+						MB_ICONERROR);
 					return FALSE;
-				if (memcmp((void *)0x4F58D9, code_4F58D9_old, sizeof(code_4F58D9_new)) != 0)
+				}
+			}
+			if (calledCount++ == 0 && isOnStarcraft) {
+				if (hook_init(hInst) == FALSE) {
+					sqlog(L"Starcraft: hook_init failed during attaching");
 					return FALSE;
+				}
+				if (memcmp((void *)0x4F58D9, code_4F58D9_old, sizeof(code_4F58D9_new)) != 0) {
+					sqlog(L"Starcraft: memcmp failed during attaching");
+					return FALSE;
+				}
 
 				/*
 				 * 004F58D9 : push 0x000000DE
@@ -37,14 +65,16 @@ BOOL WINAPI DllMain(HINSTANCE hModule, DWORD fdwReason, LPVOID lpReserved) {
 				VirtualProtect((void *)0x4F58D9, 10, PAGE_EXECUTE_READWRITE, &oldProtect);
 				memcpy((void *)0x4F58D9, code_4F58D9_new, 10);
 				VirtualProtect((void *)0x4F58D9, 10, oldProtect, &oldProtect);
+				sqlog(L"Starcraft: attaching success");
 			}
 			break;
 
 		case DLL_THREAD_DETACH:
-			if (--calledCount == 0) {
+			if (--calledCount == 0 && isOnStarcraft) {
 				VirtualProtect((void *)0x4F58D9, 10, PAGE_EXECUTE_READWRITE, &oldProtect);
 				memcpy((void *)0x4F58D9, code_4F58D9_old, 10);
 				VirtualProtect((void *)0x4F58D9, 10, oldProtect, &oldProtect);
+				sqlog(L"Starcraft: detaching success");
 			}
 			break;
 	}
