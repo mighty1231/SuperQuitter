@@ -9,14 +9,25 @@ char *datasrc;
 size_t datasize;
 const int datasize_fixed = 705;
  
-BYTE code_4F58D9_old[10] = {0x68, 0xD2, 0, 0, 0, 0x68, 0x68, 0x22, 0x50, 0x00};
-BYTE code_4F58D9_new[10] = {
+/*
+ * 004F58D9 : push 0x000000DE
+ * 004F58DE : push 0x00502268 (== "Starcraft\SWAR\lang\gamedata.cpp")
+ * 004F58E3 : push ebx
+ * 004F58E4 : push ebx
+ * 004F58E5 : push edi (check for fileName == "rez\\quit2mnu.bin")
+ * 004F58E6 : xor ecx, ecx
+ * 004F58E8 : xor eax, eax
+ * 004F58EA : call 4D2D10 (file reading function)
+ */
+BYTE CODE_OLD[CODESIZE_TO_PATCH] = {0x68, 0xD2, 0, 0, 0, 0x68, 0x68, 0x22, 0x50, 0x00};
+BYTE CODE_NEW[CODESIZE_TO_PATCH] = {
 	0xBA, 0, 0, 0, 0,   // mov edx, hook
 	0xFF, 0xE2,         // jmp edx
 	0x90, 0x90, 0x90    // nop nop nop
 };
-/* load binary from folder in dll
- */
+
+
+/* load dialog binary from folder in dll */
 BOOL hook_init(HINSTANCE hInst) {
 	LPVOID lpMsgBuf;
 	DWORD dw;
@@ -41,7 +52,7 @@ BOOL hook_init(HINSTANCE hInst) {
 	if (datasize != datasize_fixed)
 		return FALSE;
 
-	*(int *)(code_4F58D9_new+1) = (int) hook;
+	*(int *)(CODE_NEW+1) = (int) hook;
 	return TRUE;
 }
 

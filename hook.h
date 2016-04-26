@@ -3,8 +3,10 @@
 
 #include <windows.h>
 
-extern BYTE code_4F58D9_old[10];
-extern BYTE code_4F58D9_new[10];
+#define CODEADDR_TO_PATCH 0x4F58D9
+#define CODESIZE_TO_PATCH 10
+extern BYTE CODE_OLD[10];
+extern BYTE CODE_NEW[10];
 
 BOOL hook_init(HINSTANCE hInst);
 void hook();
