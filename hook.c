@@ -1,8 +1,6 @@
 #include "hook.h"
-// #include <string.h>
 #include "resources.h"
 #include <windows.h>
-#include <stdio.h>
 
 char quitdlg[] = "rez\\quit2mnu.bin";
 char *datasrc;
@@ -65,10 +63,10 @@ __declspec(naked) void hook(void) {
 		push esi
 		; end save registers
 
-		push edi ; filename
-		mov eax, offset quitdlg
-		push eax
-		call strcmp
+		push edi                  ; filename
+		push 0x0050295C           ; constant string of rez\\quit2mnu.bin
+		mov edx, 0x00408E00
+		call edx                  ; _strcmp
 		add esp, 8
 
 		test eax, eax
@@ -86,12 +84,13 @@ __declspec(naked) void hook(void) {
 		call edx                  ; SMemAlloc
 
 		mov ebx, eax
-		push 0x000002C1           ; 705
+		push 0x000002C1           ; size = 705
 		mov eax, offset datasrc
 		mov eax, [eax]
-		push eax                  ; src
-		push ebx                  ; dest
-		call memcpy
+		push eax                  ; src = original rez\\quit2mnu.bin
+		push ebx                  ; dest = result of SMemAlloc
+		mov edx, 0x00406BF0
+		call edx                  ; _memcpy
 
 		; start load registers
 		pop esi
