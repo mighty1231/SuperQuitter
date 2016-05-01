@@ -30,20 +30,6 @@ BOOL hook_init(HINSTANCE hInst) {
 	LPVOID lpMsgBuf;
 	DWORD dw;
 	HRSRC rc = FindResource(hInst, MAKEINTRESOURCE(IDC_QUIT2MNUBIN), RT_RCDATA);
-	// if (rc == NULL) {
-	// 	dw = GetLastError(); 
-
-	// 	FormatMessage(
-	// 		FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-	// 		FORMAT_MESSAGE_FROM_SYSTEM |
-	// 		FORMAT_MESSAGE_IGNORE_INSERTS,
-	// 		NULL,
-	// 		dw,
-	// 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-	// 		(LPTSTR) &lpMsgBuf,
-	// 		0, NULL );
-	// 	MessageBox(0, (LPTSTR)lpMsgBuf,(LPTSTR) lpMsgBuf, MB_OK);
-	// }
 	HGLOBAL rcData = LoadResource(hInst, rc);
 	datasrc = (char *) LockResource(rcData);
 	datasize = SizeofResource(hInst, rc);
