@@ -2,7 +2,8 @@
 #define __UTIL_H__
 
 #include <wchar.h>
+#include <windows.h>
 
-size_t GetDllPath(wchar_t *);
+BOOL GetDllInfo(HMODULE *, wchar_t *);
 
 #endif

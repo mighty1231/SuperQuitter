@@ -1,13 +1,10 @@
 #include "hook.h"
-#include "resources.h"
 #include <windows.h>
 
-char quitdlg[] = "rez\\quit2mnu.bin";
-char *datasrc;
-size_t datasize;
-const int datasize_fixed = 705;
- 
 /*
+ * CODEADDR_TO_PATCH 0x4F58D9
+ * CODESIZE_TO_PATCH 10
+ *
  * 004F58D9 : push 0x000000DE
  * 004F58DE : push 0x00502268 (== "Starcraft\SWAR\lang\gamedata.cpp")
  * 004F58E3 : push ebx
@@ -23,22 +20,8 @@ BYTE CODE_NEW[CODESIZE_TO_PATCH] = {
 	0xFF, 0xE2,         // jmp edx
 	0x90, 0x90, 0x90    // nop nop nop
 };
-
-
-/* load dialog binary from folder in dll */
-BOOL hook_init(HINSTANCE hInst) {
-	LPVOID lpMsgBuf;
-	DWORD dw;
-	HRSRC rc = FindResource(hInst, MAKEINTRESOURCE(IDC_QUIT2MNUBIN), RT_RCDATA);
-	HGLOBAL rcData = LoadResource(hInst, rc);
-	datasrc = (char *) LockResource(rcData);
-	datasize = SizeofResource(hInst, rc);
-	if (datasize != datasize_fixed)
-		return FALSE;
-
-	*(int *)(CODE_NEW+1) = (int) hook;
-	return TRUE;
-}
+char *binary_data = NULL;
+size_t binary_size = 0;
 
 __declspec(naked) void hook(void) {
 	__asm {
@@ -49,34 +32,35 @@ __declspec(naked) void hook(void) {
 		push esi
 		; end save registers
 
-		push edi                  ; filename
-		push 0x0050295C           ; constant string of rez\\quit2mnu.bin
+		push edi                       ; filename
+		push 0x0050295C                ; constant string of rez\\quit2mnu.bin
 		mov edx, 0x00408E00
-		call edx                  ; _strcmp
+		call edx                       ; _strcmp
 		add esp, 8
 
 		test eax, eax
 		jnz __default
 
 	__quit:
-		; pop edi
-		; pop ebx
-
-		push ebx                  ; defaultValue
-		push 0x000000D2           ; logline
-		push 0x00502268           ; logfilename
-		push 0x000002C1           ; 705
+		push ebx                       ; defaultValue
+		push 0x000000D2                ; logline
+		push 0x00502268                ; logfilename
+		mov eax, offset binary_size
+		mov eax, [eax]
+		push eax                       ; size
 		mov edx, 0x0041006A
-		call edx                  ; SMemAlloc
+		call edx                       ; SMemAlloc
 
 		mov ebx, eax
-		push 0x000002C1           ; size = 705
-		mov eax, offset datasrc
+		mov eax, offset binary_size
 		mov eax, [eax]
-		push eax                  ; src = original rez\\quit2mnu.bin
-		push ebx                  ; dest = result of SMemAlloc
+		push eax                       ; size
+		mov eax, offset binary_data
+		mov eax, [eax]
+		push eax                       ; src = original rez\\quit2mnu.bin
+		push ebx                       ; dest = result of SMemAlloc
 		mov edx, 0x00406BF0
-		call edx                  ; _memcpy
+		call edx                       ; _memcpy
 
 		; start load registers
 		pop esi

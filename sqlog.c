@@ -17,7 +17,7 @@ int sqlog(wchar_t *format, ...){
 	GetLocalTime(&st);
 
 	/* Get log file */
-	GetDllPath(logfname);
+	GetDllInfo(NULL, logfname);
 	wchar_t *pwc;
 	pwc = wcsrchr(logfname, L'\\');
 	if (pwc == NULL) {

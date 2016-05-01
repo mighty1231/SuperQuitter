@@ -3,26 +3,25 @@
 #include <windows.h>
 #include <wchar.h>
 
-static size_t length = 0;
+static HMODULE hModule = NULL;
 static wchar_t dllPath[MAX_PATH] = {0,};
 
-size_t GetDllPath(wchar_t *dest) {
-	if (length != 0) {
-		wcscpy(dest, dllPath);
-		return length;
-	} else {
-		HMODULE hModule;
+/* Get handle and path of loaded executable (handle for module itself)
+ * Returns TRUE if it successes, FALSE if not. */
+BOOL GetDllInfo(HMODULE *_out_module, wchar_t *_out_dllpath) {
+	if (hModule == NULL) {
 		if (!GetModuleHandleExW(
 				GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
 				GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-				(LPWSTR) &GetDllPath, &hModule) ||
+				(LPWSTR) &GetDllInfo, &hModule) ||
 			GetModuleFileNameW(hModule, dllPath, _countof(dllPath)) == 0) {
-			return 0;
+			return FALSE;
 		}
-		length = wcslen(dllPath);
-		wcscpy(dest, dllPath);
-		sqlog(L"Path of dll is %s", dllPath);
-		return length;
 	}
+	if (_out_module != NULL)
+		*_out_module = hModule;
+	if (_out_dllpath != NULL)
+		wcscpy(_out_dllpath, dllPath);
+	return TRUE;
 }
 
