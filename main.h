@@ -1,0 +1,8 @@
+#ifndef __MAIN_H__
+#define __MAIN_H__
+
+#include <windows.h>
+
+DWORD WINAPI MainLoop(LPVOID);
+
+#endif
