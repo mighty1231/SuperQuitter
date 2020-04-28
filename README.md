@@ -13,6 +13,7 @@ It only works for Starcraft version 1.16.1.
 
 * Install Microsoft Visual Studio
 * Modify `PATH` environment variable to make system be able to search `cl`, `rc`, and `link`.
+
        * `cl`: Microsoft Visual C++ Compiler
        * `link`: Microsoft Visual C++ Linker
        * `rc`: [Resource Compiler](https://docs.microsoft.com/en-us/windows/win32/menurc/resource-compiler)
